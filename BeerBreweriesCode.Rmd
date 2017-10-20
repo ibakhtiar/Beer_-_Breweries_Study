@@ -1,0 +1,130 @@
+---
+title: "BeerBreweriesAnalysis"
+author: "IramB"
+date: "October 17, 2017"
+output: html_document
+---
+# Read in data for Breweries  
+
+Breweries <- read.csv(file="C:/Users/DataScience/Documents/Git/BeerAndBreweriesAnalysis/DataFiles/Breweries.csv", header = T)  
+
+
+# Read in data for Beer 
+Beers <- read.csv(file="C:/Users/DataScience/Documents/Git/BeerAndBreweriesAnalysis/DataFiles/Beers.csv", header = T)   
+
+
+
+#To count number of Breweries per states,
+States=count(Breweries,State)
+States
+class(States)  
+
+
+#To save the above as a seperate df
+saveRDS(States,file="data.Rda")  
+
+
+# Change the column name, changing "n" to Count"
+colnames(States)[2]<-"Count"  
+
+#Not sure if I need this
+States$Freq<-as.character(States$Count)
+
+
+#Arrange data in descending order
+States<-arrange(States,-Count)  
+
+
+# Change the column name, making Brewery_id key to merge df  
+colnames(Breweries)[1] <- "Brewery_id"  
+
+
+
+#Move Brewery_id to be the first column in Beer
+Beers[,c(Brewery_id, Name, Beer_ID, ABV, IBU, Ounces)]  
+
+
+
+#Merge Beers and Breweries df
+BeersAndBreweries<-merge(Beers, Breweries,union("Brewery_id","Brewery_id"),all = TRUE)   
+
+
+
+#The first 6 rows of merged df
+head(BeersAndBreweries,6)  
+FirstSixRows=head(BeersAndBreweries,6)  
+FirstSixRows  
+saveRDS(FirstSixRows,file="data.Rda")  
+
+
+
+
+#The last 6 rows of merged df
+tail(BeersAndBreweries, 6)
+
+
+#To get Last 6 rows of merged df,
+LastSix=tail(BeersAndBreweries, 6)
+LastSix
+class(LastSix)  
+
+
+#To save the above as a seperate df
+saveRDS(LastSix,file="data.Rda")  
+
+
+#To count number of N/A in ABV column
+sum(is.na(BeersAndBreweries$ABV))   
+
+#To count number of N/A in IBU column
+sum(is.na(BeersAndBreweries$IBU))   
+
+
+#To count number of N/A in all columns
+sum(is.na(BeersAndBreweries))   
+
+
+#Compute Median ABV & IBU for each State
+MedianABVIBU <- BeersAndBreweries[,c("ABV","IBU", "State")]   
+
+class(MedianABVIBU)  
+
+saveRDS(MedianABVIBU,file="data.Rda") 
+
+
+with(MedianABVIBU,table(ABV,State))
+
+#Create new df to get ABV by State
+MedianABV<-BeersAndBreweries[c("Name.x", "ABV","State")]  
+
+
+#Sort ABV df alphabetically by State
+library(dplyr)
+arrange(MedianABV, State,)  
+
+
+#To count number of Beers per states to get Median ABV per State,
+Beers2=count(MedianABVSorted,State)  
+Beers2  
+class(Beers2)  
+
+
+#Median ABV per State:
+aggregate(.~State, data=MedianABVSorted, median)  
+
+#Max ABV per State:
+aggregate(.~State, data=MedianABVSorted, max) 
+
+
+#Create new df to get IBU by State
+MedianIBU<-BeersAndBreweries[c("Name.x", "IBU","State")] 
+
+
+#Median IBU per State
+aggregate(.~State, data=MedianIBU, median)  
+
+
+#Max IBU per State
+aggregate(.~State, data=MedianIBU, max)  
+
+Summary(MedianABVSummary)   
